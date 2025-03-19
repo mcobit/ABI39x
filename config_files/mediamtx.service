@@ -1,0 +1,10 @@
+[Unit]
+Description=mediamtx
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/home/pi/mediamtx /home/pi/mediamtx.yml
+
+[Install]
+WantedBy=multi-user.target

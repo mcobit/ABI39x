@@ -1,0 +1,1 @@
+video=HDMI-A-2:800x480 video=HDMI-A-1:800x480 console=tty1 root=PARTUUID=0a269e21-02 rootfstype=ext4 fsck.repair=yes rootwait
