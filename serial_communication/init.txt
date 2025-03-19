@@ -1,0 +1,245 @@
+1.) Finding the Synthesizer(s) on the AppleTalk network:
+
+Example NBP LkUp from Node 01 in Net FF00:
+
+0000   09 00 07 ff ff ff 86 c9 88 13 e5 8b 00 30 aa aa   .............0..
+0010   03 08 00 07 80 9b 00 28 00 00 00 00 ff 00 ff 01   .......(........
+0020   02 fd 02 21 5d ff 00 01 fd 00 01 3d 0f 41 42 49   ...!]......=.ABI
+0030   20 53 79 6e 74 68 65 73 69 7a 65 72 01 2a          Synthesizer.*
+
+Example NBP LkUp-Reply of Synthesizer-1 as Node 5 in Net FF00:
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 44 aa aa   vr..$........D..
+0010   03 08 00 07 80 9b 00 34 00 00 ff 00 ff 00 01 05   .......4........
+0020   fd 02 02 31 5d ff 00 05 80 00 0d 53 79 6e 74 68   ...1]......Synth
+0030   65 73 69 7a 65 72 2d 31 0f 41 42 49 20 53 79 6e   esizer-1.ABI Syn
+0040   74 68 65 73 69 7a 65 72 01 2a                     thesizer.*
+
+Repeat NBP LkUp 7 times to collect even slow devices.
+
+
+2.) Connecting to a Synthesizer:
+
+Example of specific NBP LkUp of previously discovered Synthesizer-1:
+
+0000   09 00 07 ff ff ff 86 c9 88 13 e5 8b 00 3c aa aa   .............<..
+0010   03 08 00 07 80 9b 00 34 00 00 00 00 ff 00 ff 01   .......4........
+0020   02 fd 02 21 5f ff 00 01 fd 00 0d 53 79 6e 74 68   ...!_......Synth
+0030   65 73 69 7a 65 72 2d 31 0f 41 42 49 20 53 79 6e   esizer-1.ABI Syn
+0040   74 68 65 73 69 7a 65 72 01 2a                     thesizer.*
+
+Example of LkUp-Reply of Synthesizer-1:
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 44 aa aa   vr..$........D..
+0010   03 08 00 07 80 9b 00 34 00 00 ff 00 ff 00 01 05   .......4........
+0020   fd 02 02 31 5f ff 00 05 80 00 0d 53 79 6e 74 68   ...1_......Synth
+0030   65 73 69 7a 65 72 2d 31 0f 41 42 49 20 53 79 6e   esizer-1.ABI Syn
+0040   74 68 65 73 69 7a 65 72 01 2a                     thesizer.*
+
+Repeat 4 times check for Reply.
+
+3.) Sequence to get all data to display the first screen of Oligo Net:
+All communication is handled over non-standard DDP protocol HEX 0x5C (DEC 92).
+The software asks for the requested parameter with the keyword PASS at the end 
+to make the synthesizer answer.
+The Synthesizer repeats the request parameter and sends the Data afterwards.
+Requests are prefixed with 0x40 at the first byte of the payload.
+Replies have a prefix of 0x80.
+Both are followed by a 3 bytes counter counting up requests since connection as an id 
+(same for the request and the answer) and the parameter string.
+Following data seems to be grouped into fields separated by 0x00 byte.
+
+OligoNet requests the Model of the Synthesizer (Modl) id 0x00, 0x00, 0x00:
+
+0000   86 c9 88 13 e5 8b 76 72 b1 d2 24 a6 00 29 aa aa   ......vr..$..)..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 21 00 00 ff 00 ff 00 05 01   .......!........
+      |-----------------DDP Header--------------------
+0020   80 f8 5c 40 00 00 00 4d 6f 64 6c 00 00 00 00 00   ..\@...Modl.....
+       --------|RQ|--RQID--|----------Function--------|
+0030   00 00 00 50 41 53 53                              ...PASS
+      |---??---|--Command--|
+       
+RQ = Request
+
+
+Answer from Synthesizer:
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 5b aa aa   vr..$........[..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 4b 00 00 ff 00 ff 00 01 05   .......K........
+      |-----------------DDP Header--------------------
+0020   f8 80 5c 80 00 00 00 4d 6f 64 6c 00 00 00 00 00   ..\....Modl.....
+       --------|RP|--RQID--|----------Function--------
+0030   00 00 00 00 00 00 00 01 88 00 08 00 02 00 c8 33   ...............3
+       --------|----???----|-MNO-|--|BP|--|CC|--|RV|--
+0040   39 32 2d 38 20 28 52 65 76 2e 20 32 2e 30 30 29   92-8 (Rev. 2.00)
+       ------------.Instrument Identifier-------------
+0050   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+       --------------------------------------------|--|
+0060   01                                                .
+      |TM|
+
+RQ = Request
+RP = Reply
+MNO = Model Number
+BP = # of Base Positions
+CC = # of Columns
+RV = ROM Version
+TM = Trityl Monitor (0x00 = not available, 0x01 = available)
+
+
+OligoNet requests Access Rights (?) (Acce) id 0x00, 0x00, 0x01:
+
+0000   86 c9 88 13 e5 8b 76 72 b1 d2 24 a6 00 29 aa aa   ......vr..$..)..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 21 00 00 ff 00 ff 00 05 01   .......!........
+      |-----------------DDP Header--------------------
+0020   80 f8 5c 40 00 00 01 41 63 63 65 00 00 00 00 00   ..\@...Acce.....
+       --------|RQ|--RQID--|----------Function--------|
+0030   00 00 00 50 41 53 53                              ...PASS
+      |---??---|--Command--|
+
+Answer from Synthesizer:
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 35 aa aa   vr..$........5..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 25 00 00 ff 00 ff 00 01 05   .......%........
+      |-----------------DDP Header--------------------
+0020   f8 80 5c 80 00 00 01 41 63 63 65 00 00 00 00 00   ..\....Acce.....
+       --------|RP|--RQID--|----------Function--------|
+0030   00 00 00 00 00 00 00 00 02 00 02 00               ............
+      |-----------------------|WP|--|NP|--|
+
+WP = With Password (0x00 = not allowed, 0x01 = Reading allowed, 0x02 = Reading & editing allowed)
+NP = Without Password (0x00 = not allowed, 0x01 = Reading allowed, 0x02 = Reading & editing allowed)
+
+
+OligoNet requests Current Sequence Information (?) (CSeq) id 0x00, 0x00, 0x02:
+
+0000   86 c9 88 13 e5 8b 76 72 b1 d2 24 a6 00 29 aa aa   ......vr..$..)..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 21 00 00 ff 00 ff 00 05 01   .......!........
+      |-----------------DDP Header--------------------
+0020   80 f8 5c 40 00 00 02 43 53 65 71 00 00 00 00 00   ..\@...CSeq.....
+       --------|RQ|--RQID--|----------Function--------|
+0030   01 00 02 50 41 53 53                              ...PASS
+      |-RANGE--|--Command--|
+
+Answer from Synthesizer:
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 39 aa aa   vr..$........9..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 29 00 00 ff 00 ff 00 01 05   .......)........
+      |-----------------DDP Header--------------------
+0020   f8 80 5c 80 00 00 02 43 53 65 71 00 00 00 00 00   ..\....CSeq.....
+       --------|RP|--RQID--|----------Function--------|
+0030   01 00 02 00 00 00 00 00 00 00 02 00 00 00 03      ...............
+      |-RANGE--|---------------??------------------|
+
+
+OligoNet requests Status (Stat) id 0x00, 0x00, 0x03:
+
+0000   86 c9 88 13 e5 8b 76 72 b1 d2 24 a6 00 29 aa aa   ......vr..$..)..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 21 00 00 ff 00 ff 00 05 01   .......!........
+      |-----------------DDP Header--------------------
+0020   80 f8 5c 40 00 00 03 53 74 61 74 00 00 00 00 00   ..\@...Stat.....
+       --------|RQ|--RQID--|----------Function--------|
+0030   00 00 00 50 41 53 53                              ...PASS
+      |---??---|--Command--|
+
+Answer from Synthesizer (All 0x00 if no synthesis running):
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 d5 aa aa   vr..$...........
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 c5 00 00 ff 00 ff 00 01 05   ................
+      |-----------------DDP Header--------------------
+0020   f8 80 5c 80 00 00 03 53 74 61 74 00 00 00 00 00   ..\....Stat.....
+       --------|RP|--RQID--|----------Function--------|
+0030   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0040   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0050   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0060   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0070   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0080   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0090   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+00a0   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+00b0   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+00c0   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+00d0   00 00 00 00 00 00 00 00 00 00 00                  ...........
+
+
+OligoNet requests Monitor Status (?) (MonS) id 0x00, 0x00, 0x04:
+
+0000   86 c9 88 13 e5 8b 76 72 b1 d2 24 a6 00 29 aa aa   ......vr..$..)..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 21 00 00 ff 00 ff 00 05 01   .......!........
+      |-----------------DDP Header--------------------
+0020   80 f8 5c 40 00 00 04 4d 6f 6e 53 00 00 00 00 00   ..\@...MonS.....
+       --------|RQ|--RQID--|----------Function--------|
+0030   00 00 00 50 41 53 53                              ...PASS
+      |---??---|--Command--|
+
+Answer from Synthesizer:
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 37 aa aa   vr..$........7..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 27 00 00 ff 00 ff 00 01 05   .......'........
+      |-----------------DDP Header--------------------
+0020   f8 80 5c 80 00 00 04 4d 6f 6e 53 00 00 00 00 00   ..\....MonS.....
+       --------|RP|--RQID--|----------Function--------|
+0030   00 00 00 00 00 00 00 00 00 00 5a 00 01            ..........Z..
+
+
+OligoNet requests number of monitored couplings on Column 1 (NMon):
+
+1st request:
+
+0000   86 c9 88 13 e5 8b 76 72 b1 d2 24 a6 00 29 aa aa   ......vr..$..)..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 21 00 00 ff 00 ff 00 05 01   .......!........
+      |-----------------DDP Header--------------------
+0020   80 f8 5c 40 00 00 05 4e 4d 6f 6e 00 01 00 00 00   ..\@...NMon.....
+       --------|RQ|--RQID--|--Function-|--|CN|--------|
+0030   00 00 00 50 41 53 53                              ...PASS
+      |---??---|--Command--|
+
+1st answer:
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 33 aa aa   vr..$........3..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 23 00 00 ff 00 ff 00 01 05   .......#........
+      |-----------------DDP Header--------------------
+0020   f8 80 5c 80 00 00 05 4e 4d 6f 6e 00 01 00 00 00   ..\....NMon.....
+       --------|RP|--RQID--|--Function-|--|CN|--------|
+0030   00 00 00 00 00 00 00 00 29 00 00 00               ........)...
+      |-----------------------|NC|--------|
+
+
+OligoNet requests number of monitored couplings on Column 2 (NMon):
+
+2nd request:
+
+0000   86 c9 88 13 e5 8b 76 72 b1 d2 24 a6 00 29 aa aa   ......vr..$..)..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 21 00 00 ff 00 ff 00 05 01   .......!........
+      |-----------------DDP Header--------------------
+0020   80 f8 5c 40 00 00 06 4e 4d 6f 6e 00 02 00 00 00   ..\@...NMon.....
+       --------|RQ|--RQID--|--Function-|--|CN|--------|
+0030   00 00 00 50 41 53 53                              ...PASS
+      |---??---|--Command--|
+
+2nd answer:
+
+0000   76 72 b1 d2 24 a6 86 c9 88 13 e5 8b 00 33 aa aa   vr..$........3..
+      |-----------------Protocol Header --------------|
+0010   03 08 00 07 80 9b 00 23 00 00 ff 00 ff 00 01 05   .......#........
+      |-----------------DDP Header--------------------
+0020   f8 80 5c 80 00 00 06 4e 4d 6f 6e 00 02 00 00 00   ..\....NMon.....
+       --------|RP|--RQID--|--Function-|--|CN|--------|
+0030   00 00 00 00 00 00 00 00 29 00 00 00               ........)...
+      |-----------------------|NC|--------|
+
+CN = Column number
+NC = Number of couplings

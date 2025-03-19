@@ -1,0 +1,6 @@
+OligoNet requests Sequence Information of Column:
+
+0000   72 b4 63 d2 30 45 02 f6 40 43 39 d7 00 53 aa aa   r.c.0E..@C9..S..
+0010   03 08 00 07 80 9b 00 4b 00 00 ff 01 ff 00 05 01   .......K........
+0020   80 fb 5c 40 00 04 64 53 65 71 42 00 02 00 01 00   ..\@..dSeqB.....
+0030   01 00 2a 50 41 53 53                              ..*PASS
