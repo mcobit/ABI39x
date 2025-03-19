@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 5px;
+            width: min-content;
+        }
+
+        table {
+            margin: 5px;
+            text-align: center;
+        }
+
+        @font-face {
+            font-family: 'chicago';
+            /*a name to be used later*/
+            src: url('/chicago.ttf');
+            /*URL to font*/
+        }
+
+        .hidden {
+            display: none !important;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .down {
+            transition: all 0.2s;
+            transform: rotate(180deg);
+            transform-origin: center;
+        }
+
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgb(0, 0, 0);
+        }
+
+        .closed {
+            border-radius: 10px !important;
+        }
+
+        /* HTML: <div class="loader"></div> */
+        .loader {
+            margin-top: 4px;
+            width: 30px;
+            height: 30px;
+            --b: 4px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: #dadbff;
+            -webkit-mask:
+                repeating-conic-gradient(#0000 0deg, #000 1deg 70deg, #0000 71deg 90deg),
+                radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+            -webkit-mask-composite: destination-in;
+            mask-composite: intersect;
+            animation: l5 1s infinite;
+        }
+
+        @keyframes l5 {
+            to {
+                transform: rotate(.5turn)
+            }
+        }
+
+        *[style*="background:rgb(40 40 40)"] {
+            background-color: white;
+        }
+    </style>
+    <title>ABI Synthesizer Monitor</title>
+</head>
+
+<body style="font-family: chicago;">
+    <div style="display: flex; flex-direction: row; justify-content: center;">
+        <div style="display: flex; flex-direction: column;  width: 806px;">
+            <div id="synthesizertitle" style="border: 1px solid black; cursor: pointer;
+            display: flex; justify-content: space-between;
+    border-radius: 10px 10px 0px 0px;
+    padding-inline: 14px; margin-inline: 2px;
+    padding-block: 1px; background-color: #dadbff; align-items: center;">
+                <div>Synthesizer</div>
+                <div class="arrow-down down" style="transition: all 0.2s;"></div>
+            </div>
+            <div id="synthesizer_info"
+                style="border-radius: 10px;
+    padding-inline: 10px; position: relative;     margin-inline: 2px;
+    padding-block: 2px; border: 1px solid black; border-top:none; border-radius: 0px 0px 10px 10px; min-width: max-content; display: flex; flex-direction: column;">
+                <div
+                    style="display: flex; flex-direction: row; gap: 5px; justify-content: space-between; align-items: center;">
+                    <div
+                        style="display: flex; align-items: center; flex-direction: column; justify-content: space-around;">
+                        <select autocomplete="off" id="select_synthesizer" style="border-radius: 4px; height: 90%;">
+                            <option id="default_option" selected disabled>Searching for Synthesizers...</option>
+                        </select>
+                        <div class="hidden loader">
+                        </div>
+                    </div>
+                    <div style="gap: 5px; display: flex; flex-direction: column;">
+                        <div>
+                            <div>Model:</div>
+                            <div id="synthesizer">None</div>
+                        </div>
+                        <div>
+                            <div>
+                                Name:</div>
+                            <div id="name">-</div>
+                        </div>
+                    </div>
+                    <div style="gap: 5px; display: flex; flex-direction: column;">
+                        <div>
+                            <div>
+                                Basepositions:
+                            </div>
+                            <div id="basecount">-</div>
+                        </div>
+                        <div>
+                            <div>
+                                Columns:
+                            </div>
+                            <div id="columncount">-</div>
+                        </div>
+                    </div>
+                    <div style="gap: 5px; display: flex; flex-direction: column;">
+                        <div>
+                            <div>ROM Version:</div>
+                            <div id="romversion">-</div>
+                        </div>
+                        <div>
+                            <div>Trityl Monitor:</div>
+                            <div id="tritylmonitor">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="emutitle" class="closed"
+                style="border: 1px solid black; cursor: pointer;
+                                                            display: flex; justify-content: space-between;
+                                                    border-radius: 10px 10px 0px 0px;
+                                                    padding-inline: 14px; margin-inline: 2px;  margin-top: 4px;
+                                                    padding-block: 1px; background-color: #dadbff; align-items: center;">
+                <div>Emulator</div>
+                <div class="arrow-down" style="transition: all 0.2s;"></div>
+            </div>
+            <div id="emu" class="hidden"
+                style="max-height: 482px; border-radius: 0px 0px 10px 10px;  border: 1px solid black;border-top: none;margin-inline: 2px;">
+                <iframe id="emu_frame" style="display: block;display: block;border-radius: 10px;border: none;"
+                    class="emuframe" title="Mac Emulator" width="800" height="480"
+                    src="http://141.2.223.232:6080/vnc.html?autoconnect=1&reconnect=5&resize=scale">
+                </iframe>
+            </div>
+            <div id="viewtitle" class="closed"
+                style="border: 1px solid black; cursor: pointer;
+                                                                                    display: flex; justify-content: space-between;
+                                                                            border-radius: 10px 10px 0px 0px;
+                                                                            padding-inline: 14px; margin-inline: 2px;  margin-top: 4px;
+                                                                            padding-block: 1px; background-color: #dadbff; align-items: center;">
+                <div>Columns Live View</div>
+                <div class="arrow-down" style="transition: all 0.2s;"></div>
+            </div>
+            <div id="view" class="hidden"
+                style="max-height: 602px; border-radius: 0px 0px 10px 10px;  border: 1px solid black;border-top: none;margin-inline: 2px;">
+                <iframe id="view_frame"
+                    style="border-radius: 0px 0px 10px 10px; display: block;display: block;border: none;"
+                    class="view_frame" title="Column Live View" width="800" height="600"
+                    src="http://141.2.223.232:8889/cam/">
+                </iframe>
+            </div>
+            <div id="stats" style="display: flex; flex-direction: row; flex-wrap: wrap;">
+            </div>
+            <div id="trityl" style="display: flex; flex-direction: row; width: 100%; margin-top: 6px;">
+            </div>
+        </div>
+    </div>
+    <script>
+        getSynthesizerList()
+
+        let current_synthesizer
+        let statstimer
+        let currentstat = {}
+
+        document.getElementById("synthesizertitle").addEventListener('click', async () => {
+            document.getElementById("synthesizer_info").classList.toggle('hidden')
+            document.getElementById("synthesizertitle").getElementsByClassName('arrow-down')[0].classList.toggle('down')
+            document.getElementById("synthesizertitle").classList.toggle('closed')
+        })
+
+        document.getElementById("emutitle").addEventListener('click', async () => {
+            document.getElementById("emu").classList.toggle('hidden')
+            document.getElementById("emutitle").getElementsByClassName('arrow-down')[0].classList.toggle('down')
+            document.getElementById("emutitle").classList.toggle('closed')
+        })
+
+        document.getElementById("viewtitle").addEventListener('click', async () => {
+            document.getElementById("view").classList.toggle('hidden')
+            document.getElementById("viewtitle").getElementsByClassName('arrow-down')[0].classList.toggle('down')
+            document.getElementById("viewtitle").classList.toggle('closed')
+        })
+
+        document.getElementById("select_synthesizer").addEventListener('change', async () => {
+            document.getElementById("default_option").remove()
+            current_synthesizer = document.getElementById("select_synthesizer").value
+            document.getElementById("synthesizer_info").getElementsByClassName('loader')[0].classList.toggle('hidden')
+            const response = await fetch('/modl/' + current_synthesizer)
+            const model = await response.json()
+
+            document.getElementById("synthesizer_info").getElementsByClassName('loader')[0].classList.toggle('hidden')
+
+            document.getElementById('synthesizer').textContent = model.name
+            document.getElementById('basecount').textContent = model.basecount
+            document.getElementById('columncount').textContent = model.columncount
+            document.getElementById('romversion').textContent = model.romversion
+            document.getElementById('tritylmonitor').textContent = model.tritylmonitor
+            document.getElementById('name').textContent = current_synthesizer
+
+            document.getElementById('stats').replaceChildren()
+            console.log(model)
+            for (let i = 0; i < model.columncount; i++) {
+                let columndiv = document.createElement('div')
+                columndiv.style.position = "relative"
+                columndiv.id = 'column' + (i + 1)
+                columndiv.style.flex = 1
+                columndiv.style.flexBasis = '50%'
+                columndiv.innerHTML = `
+                    <div style="border: 1px solid black;
+                         border-radius: 10px 10px 0px 0px;
+                        padding-inline: 14px; margin-inline: 2px; margin-top: 5px;
+                        padding-block: 1px; background-color: #dadbff;">Column ${i + 1}</div>
+                    <div style="display: flex; padding: 4px; margin-inline: 2px; border-radius: 0px 0px 10px 10px; display: flex; flex-direction: row; gap: 5px; justify-content: space-between; border: 1px solid black; border-top: none;">  
+                        <div>
+                            <div style="border-radius: 4px; padding: 4px; border: 1px solid black;">
+                                <div>Base</div>
+                                <span class="left"></span> / <span class="total"></span>                                
+                            </div>
+                            <div style="margin-top: 4px; border-radius: 4px; padding: 4px; border: 1px solid black;">
+                                <div>Function</div>
+                                <div class="functionnumber"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="border-radius: 4px; padding: 4px; border: 1px solid black;">
+                                <div>Step</div>
+                                <div class="step"></div>
+                            </div>
+                            <div style="margin-top: 4px; border-radius: 4px; padding: 4px; border: 1px solid black;">
+                                <div>Steptime</div>
+                                <span class="timestepleft"></span> / <span class="timestep"></span>
+                            </div>
+                        </div>
+                        <div style="flex: 1; border-radius: 4px; padding: 4px; border: 1px solid black;">
+                            <div>Description:</div>
+                            <div class="functiontext"></div>
+                        </div>
+                    </div>
+                </div>`
+                document.getElementById('stats').appendChild(columndiv)
+            }
+
+            document.getElementById('trityl').replaceChildren()
+            for (let i = 0; i < model.columncount; i++) {
+                let trityldiv = document.createElement('div')
+                trityldiv.style.flex = 1
+                trityldiv.style.marginInline = '2px'
+                trityldiv.style.position = 'relative'
+                trityldiv.id = 'trityl' + (i + 1)
+
+                trityldiv.innerHTML = `
+                <div style="border: 1px solid black;
+                        border-bottom: none;
+                        border-radius: 10px 10px 0px 0px;
+                        padding-inline: 14px; margin-top: 5px;
+                        display: flex; justify-content: space-between; align-items: center;
+                        padding-block: 1px; background-color: #dadbff;"><div>Trityl Monitor - Column ${i + 1}</div><svg id="print${i + 1}" style="width: 16px; height: 16px; cursor: pointer;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M128 0C92.7 0 64 28.7 64 64l0 96 64 0 0-96 226.7 0L384 93.3l0 66.7 64 0 0-66.7c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0L128 0zM384 352l0 32 0 64-256 0 0-64 0-16 0-16 256 0zm64 32l32 0c17.7 0 32-14.3 32-32l0-96c0-35.3-28.7-64-64-64L64 192c-35.3 0-64 28.7-64 64l0 96c0 17.7 14.3 32 32 32l32 0 0 64c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-64zM432 248a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/></svg></div>
+                <div>
+                    <table id="trityltable${i + 1}" style="margin-left: 0px; margin-top: 0px; width: 100%;">
+                        <tr id="tritylheader${i + 1}">
+                            <th style="font-weight: 100;">Number<br>from 3'</th>
+                            <th style="font-weight: 100;">Base</th>
+                            <th style="font-weight: 100;">Raw</th>
+                            <th style="font-weight: 100; min-width: 140px;">Graph</th>
+                        </tr>
+                        <tr>
+                        </tr>    
+                    </table>
+
+                    </div>`
+                document.getElementById('trityl').appendChild(trityldiv)
+                document.getElementById("print" + (i + 1)).addEventListener('click', () => {
+                    const mywindow = window.open('', 'PRINT', 'height=400,width=600');
+
+                    mywindow.document.write('<html><head><title>Trityl Monitor - Column ' + (i + 1) + '</title>');
+                    mywindow.document.write(`<style>
+                                                    * {
+                                                    -webkit-print-color-adjust: exact !important;   /* Chrome, Safari 6 – 15.3, Edge */
+                                                    color-adjust: exact !important;                 /* Firefox 48 – 96 */
+                                                    print-color-adjust: exact !important;           /* Firefox 97+, Safari 15.4+ */
+                                                    }
+                                                    table,
+                                                    th,
+                                                    td {
+                                                        border: 1px solid black;
+                                                        border-collapse: collapse;
+                                                        padding: 1px;
+                                                        width: min-content;
+                                                    }
+                                                    table {
+                                                           margin: 5px;
+                                                           text-align: center;
+                                                    }
+
+                                                    @font-face {
+                                                        font-family: 'chicago';
+                                                        src: url('/chicago.ttf');
+                                                    }
+                                                    </style>`)
+                    mywindow.document.write('</head><body style="margin-inline: 5%; font-family: chicago;">');
+                    mywindow.document.write('<div>Trityl Monitor - Column ' + (i + 1) + '</div><br>');
+                    mywindow.document.write(document.getElementById('trityltable' + (i + 1)).parentElement.innerHTML);
+                    mywindow.document.write('</body></html>');
+
+                    mywindow.document.close(); // necessary for IE >= 10
+                    mywindow.focus(); // necessary for IE >= 10*/
+
+                    mywindow.print();
+                    mywindow.close();
+                })
+            }
+
+            statstimer = setInterval(async function () {
+                const response = await fetch('/stat/' + current_synthesizer)
+                const stats = await response.json()
+
+                if (JSON.stringify(currentstat['status']) != JSON.stringify(stats['status'])) {
+                    console.log(stats['status'])
+                    Object.keys(stats['status']).forEach(column => {
+                        let columndiv = document.getElementById(column)
+                        columndiv.getElementsByClassName('total')[0].textContent = stats['status'][column].total
+                        columndiv.getElementsByClassName('left')[0].textContent = stats['status'][column].left
+                        columndiv.getElementsByClassName('step')[0].textContent = stats['status'][column].step
+                        columndiv.getElementsByClassName('functionnumber')[0].textContent = stats['status'][column].functionnumber
+                        columndiv.getElementsByClassName('functiontext')[0].textContent = stats['status'][column].functiontext
+                        columndiv.getElementsByClassName('timestep')[0].textContent = stats['status'][column].timestep
+                        columndiv.getElementsByClassName('timestepleft')[0].textContent = stats['status'][column].timestepleft
+                    })
+                }
+
+                if (JSON.stringify(currentstat['trityl']) != JSON.stringify(stats['trityl'])) {
+                    Object.keys(stats['trityl']).forEach(column => {
+                        const rowCount = document.getElementById('trityltable' + column).rows.length;
+                        for (var i = rowCount - 1; i > 0; i--) {
+                            document.getElementById('trityltable' + column).deleteRow(i);
+                        }
+                        let yield
+                        let oyield
+                        let firstraw
+                        let lastraw
+                        Object.keys(stats['trityl'][column]).forEach(coupling => {
+                            const current_coupling = stats['trityl'][column][coupling]
+                            if (coupling == 2) {
+                                firstraw = current_coupling.raw
+                                lastraw = current_coupling.raw
+                                yield = 100
+                                oyield = 100
+                            } else {
+                                yield = (current_coupling.raw / lastraw) * 100
+                                oyield = (current_coupling.raw / firstraw) * 100
+                                lastraw = current_coupling.raw
+                            }
+
+                            document.getElementById('trityltable' + column).innerHTML += `
+                            <tr><td>${coupling}</td><td>${current_coupling.base}</td><td>${current_coupling.raw}</td><td style="position: relative; flex: 1; min-width: ${current_coupling.raw / 2}px;"><div style="background-color: cornflowerblue; width: ${current_coupling.raw / 2}px;height: 100%; position: absolute; left: 0px; top: 0px;"></div></td></tr>
+                            `
+                        })
+                    })
+                }
+
+                currentstat = { ...stats }
+            }, 1000)
+
+        })
+
+        async function getSynthesizerList() {
+            const response = await fetch('/sget')
+            const synthesizerlist = await response.json()
+            document.getElementById("default_option").textContent = "Please Select"
+            Object.keys(synthesizerlist).forEach(synthesizer => {
+                let option = document.createElement('option')
+                option.value = synthesizerlist[synthesizer].name
+                option.textContent = synthesizerlist[synthesizer].name
+                document.getElementById("select_synthesizer").appendChild(option)
+            })
+        }
+    </script>
+</body>
+
+</html>
